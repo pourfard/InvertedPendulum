@@ -1,16 +1,41 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+import serial
+import time
+import threading
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+class SerialCom:
+    def __init__(self, port="/dev/ttyACM0"):
+        self.port = port
+        self.baud_rate = 9600
+        self.command = ""
+        self.thread = threading.Thread(target=self.main)
+        self.thread.start()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    def doStep(self, right, steps, sleep_micro_seconds):
+        self.command = "right" if right else "left"
+        self.command += "," + str(steps) + "," + str(sleep_micro_seconds) + "\r"
+
+    def main(self):
+        while True:
+            try:
+                ser = serial.Serial(self.port, self.baud_rate)
+                time.sleep(1)
+                while True:
+                    if self.command != "":
+                        ser.write(self.command.encode())
+                        print("Command sent", self.command)
+                        self.command = ""
+                    time.sleep(0.001)
+            except:
+                print("Serial Com Exception")
+            time.sleep(1)
+
+
+if __name__ == "__main__":
+    serial_com = SerialCom()
+    while True:
+        serial_com.doStep(True, 800*5, 200)
+        time.sleep(2)
+        serial_com.doStep(False, 800*5, 200)
+        time.sleep(2)
+        print("Doing steps")
