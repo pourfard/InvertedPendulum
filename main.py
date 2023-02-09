@@ -18,11 +18,11 @@ class SerialCom:
     def main(self):
         while True:
             try:
-                ser = serial.Serial(self.port, self.baud_rate)
+                _serial = serial.Serial(self.port, self.baud_rate)
                 time.sleep(1)
                 while True:
                     if self.command != "":
-                        ser.write(self.command.encode())
+                        _serial.write(self.command.encode())
                         print("Command sent", self.command)
                         self.command = ""
                     time.sleep(0.001)
