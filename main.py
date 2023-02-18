@@ -8,6 +8,8 @@ class SerialCom:
         self.port = port
         self.baud_rate = 9600
         self.command = ""
+        self.last_value = None
+        self.start_value = None
         self.thread = threading.Thread(target=self.main)
         self.thread.start()
 
@@ -15,8 +17,19 @@ class SerialCom:
         self.command = "right" if right else "left"
         self.command += "," + str(steps) + "," + str(sleep_micro_seconds) + "\r"
 
+    def angle_changed(self, current_value):
+        if self.last_value is None:
+            self.last_value = current_value
+            self.start_value = current_value
+            return
+
+        if current_value != self.last_value:
+            print("Angle changed", self.last_value - current_value, (((current_value - self.start_value)%2400)/2400)*360)
+            self.last_value = current_value
+
     def main(self):
         while True:
+
             try:
                 _serial = serial.Serial(self.port, self.baud_rate)
                 time.sleep(1)
@@ -25,7 +38,14 @@ class SerialCom:
                         _serial.write(self.command.encode())
                         print("Command sent", self.command)
                         self.command = ""
-                    time.sleep(0.001)
+
+                    data = _serial.readline().decode().strip()
+                    # print(data)
+                    if data.startswith("#") and data.endswith("#"):
+                        current_value = int(data.replace("#", ""))
+                        self.angle_changed(current_value)
+
+                    time.sleep(0.0001)
             except:
                 print("Serial Com Exception")
             time.sleep(1)
@@ -34,8 +54,8 @@ class SerialCom:
 if __name__ == "__main__":
     serial_com = SerialCom()
     while True:
-        serial_com.doStep(True, 800*5, 200)
+        # serial_com.doStep(True, 800*5, 200)
+        # time.sleep(2)
+        # serial_com.doStep(False, 800*5, 200)
         time.sleep(2)
-        serial_com.doStep(False, 800*5, 200)
-        time.sleep(2)
-        print("Doing steps")
+        # print("Doing steps")
