@@ -24,9 +24,12 @@ class SerialCom:
             return
 
         if current_value != self.last_value:
-            print("Angle changed", self.last_value - current_value,
+            steps = self.last_value - current_value
+            print("Angle changed", steps,
                   (((current_value - self.start_value) % 2400) / 2400) * 360)
             self.last_value = current_value
+
+            serial_com.doStep(steps>=0, abs(steps), 200)
 
     def main(self):
         while True:
@@ -54,8 +57,8 @@ class SerialCom:
 if __name__ == "__main__":
     serial_com = SerialCom()
     while True:
-        serial_com.doStep(True, 800, 200)
+        #serial_com.doStep(True, 800, 200)
         time.sleep(1)
-        serial_com.doStep(False, 800, 200)
+        #serial_com.doStep(False, 800, 200)
         time.sleep(1)
         print("Doing steps")
