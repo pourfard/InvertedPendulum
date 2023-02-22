@@ -55,7 +55,7 @@ void doStep(bool right, int steps, int sleepMicroSeconds)
         digitalWrite(8,LOW); // set high level direction
     }
 
-    for(int x = 0; x < steps; x++) // repeat 400 times a revolution when setting 400 on driver
+    for(int x = 0; x < steps; x++)
     {
         digitalWrite(9,HIGH); // Output high
         delayMicroseconds(sleepMicroSeconds); // set rotate speed
@@ -81,10 +81,10 @@ void updateEncoder(){
 }
 
 void loop() {
-    //doStep(true, 6400, 50);
-    //delay(1000);
-    //doStep(false, 6400, 50);
-    //delay(1000);
+    /*doStep(true, 800, 1000);
+    delay(1000);
+    doStep(false, 800, 1000);
+    delay(1000);*/
 
     if (Serial.available() > 0) {
       String incomingString = Serial.readStringUntil('\r');
@@ -92,8 +92,9 @@ void loop() {
       String steps = getValue(incomingString, ',', 1);
       String sleepMicroSeconds = getValue(incomingString, ',', 2);
       doStep(dir == "right", steps.toInt(), sleepMicroSeconds.toInt());
+      Serial.println("#"+String(encoderValue)+"#");
   }
 
     Serial.println("#"+String(encoderValue)+"#");
-    delay(1);
+    //delay(1);
 }
